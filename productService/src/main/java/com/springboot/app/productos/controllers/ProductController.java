@@ -5,10 +5,8 @@ import com.springboot.app.productos.models.service.interfaces.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +31,7 @@ public class ProductController {
     @GetMapping("/list")
     public List<Product> list() {
         return productService.findAll().stream().map(product -> {
-           // product.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
+            // product.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
             product.setPort(port);
             return product;
         }).collect(Collectors.toList());
@@ -45,5 +43,27 @@ public class ProductController {
         //product.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
         product.setPort(port);
         return product;
+    }
+
+    @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product create(@RequestBody Product product) {
+        return productService.save(product);
+    }
+
+    ///TODO Modificar put, pasando id por requestBody
+    @PutMapping("/update/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product update(@RequestBody Product newProduct, @PathVariable Long id) {
+        Product product = productService.findById(id);
+        product.setNombre(newProduct.getNombre());
+        product.setPrecio(newProduct.getPrecio());
+        return productService.save(product);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long id) {
+        productService.deleteById(id);
     }
 }
